@@ -10,7 +10,7 @@ requires-python = ">=3.12" # for Lingua
 dependencies = [
   "numba>=0.66.0",
   "lingua-language-detector>=2.1.1",
-  "sentence-splitter>=1.4",
+  "pysbd>=0.3.4",
   "sentence-transformers>=5.6.1",
 ]
 [project.optional-dependencies]

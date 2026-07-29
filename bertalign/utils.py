@@ -1,8 +1,8 @@
 import re
 from functools import lru_cache
 
+import pysbd
 from lingua import LanguageDetectorBuilder
-from sentence_splitter import SentenceSplitter
 
 @lru_cache(maxsize=1)
 def _get_language_detector():
@@ -30,36 +30,13 @@ def detect_lang(text):
     return lang
 
 def split_sents(text, lang):
-    lang = {'nb': 'no', 'nn': 'no'}.get(lang, lang)
-    if lang in LANG.SPLITTER:
-        if lang == 'zh':
-            sents = _split_zh(text)
-        else:
-            splitter = SentenceSplitter(language=lang)
-            sents = splitter.split(text=text) 
-            sents = [sent.strip() for sent in sents]
-        return sents
-    else:
-        raise Exception('The language {} is not suppored yet.'.format(LANG.ISO[lang]))
-    
-def _split_zh(text, limit=1000):
-        sent_list = []
-        text = re.sub('(?P<quotation_mark>([。？！](?![”’"\'）])))', r'\g<quotation_mark>\n', text)
-        text = re.sub('(?P<quotation_mark>([。？！]|…{1,2})[”’"\'）])', r'\g<quotation_mark>\n', text)
+    try:
+        segmenter = pysbd.Segmenter(language=lang, clean=False)
+    except ValueError as exc:
+        language = LANG.ISO.get(lang, lang)
+        raise ValueError('The language {} is not supported yet.'.format(language)) from exc
 
-        sent_list_ori = text.splitlines()
-        for sent in sent_list_ori:
-            sent = sent.strip()
-            if not sent:
-                continue
-            else:
-                while len(sent) > limit:
-                    temp = sent[0:limit]
-                    sent_list.append(temp)
-                    sent = sent[limit:]
-                sent_list.append(sent)
-
-        return sent_list
+    return [sent.strip() for sent in segmenter.segment(text) if sent.strip()]
         
 def yield_overlaps(lines, num_overlaps):
     lines = [_preprocess_line(line) for line in lines]
@@ -84,33 +61,6 @@ def _preprocess_line(line):
     return line
     
 class LANG:
-    SPLITTER = {
-        'ca': 'Catalan',
-        'zh': 'Chinese',
-        'cs': 'Czech',
-        'da': 'Danish',
-        'nl': 'Dutch',
-        'en': 'English',
-        'fi': 'Finnish',
-        'fr': 'French',
-        'de': 'German',
-        'el': 'Greek',
-        'hu': 'Hungarian',
-        'is': 'Icelandic',
-        'it': 'Italian',
-        'lt': 'Lithuanian',
-        'lv': 'Latvian',
-        'no': 'Norwegian',
-        'pl': 'Polish',
-        'pt': 'Portuguese',
-        'ro': 'Romanian',
-        'ru': 'Russian',
-        'sk': 'Slovak',
-        'sl': 'Slovenian',
-        'es': 'Spanish',
-        'sv': 'Swedish',
-        'tr': 'Turkish',
-    }
     ISO = {
 		'aa': 'Afar',
 		'ab': 'Abkhaz',
