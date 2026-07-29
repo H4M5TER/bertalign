@@ -1,0 +1,24 @@
+[project]
+name = "Bertalign"
+version = "1.1.0"
+description = "An automatic multilingual sentence aligner."
+urls.homepage = "https://github.com/bfsujason/bertalign"
+readme = "README.md"
+license-files = ["LICENCE"]
+authors = [{ name = "Jason", email = "bfsujason@163.com" }]
+requires-python = ">=3.12" # for Lingua
+dependencies = [
+  "numba>=0.66.0",
+  "lingua-language-detector>=2.1.1",
+  "sentence-splitter>=1.4",
+  "sentence-transformers>=5.6.1",
+]
+[project.optional-dependencies]
+cpu = ["faiss-cpu>=1.14.3"]
+gpu = ["faiss-gpu>=1.14.3"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+[tool.setuptools]
+packages = ["bertalign"]
