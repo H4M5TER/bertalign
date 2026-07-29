@@ -1,6 +1,12 @@
 import re
-from googletrans import Translator
+from functools import lru_cache
+
+from lingua import LanguageDetectorBuilder
 from sentence_splitter import SentenceSplitter
+
+@lru_cache(maxsize=1)
+def _get_language_detector():
+    return LanguageDetectorBuilder.from_all_languages().build()
 
 def clean_text(text):
     clean_text = []
@@ -14,17 +20,17 @@ def clean_text(text):
     return "\n".join(clean_text)
     
 def detect_lang(text):
-    translator = Translator(service_urls=[
-      'translate.google.com.hk',
-    ])
-    max_len = 200
+    max_len = 10000
     chunk = text[0 : min(max_len, len(text))]
-    lang = translator.detect(chunk).lang
-    if lang.startswith('zh'):
-        lang = 'zh'
+    language = _get_language_detector().detect_language_of(chunk)
+    if language is None:
+        raise ValueError('Could not detect the language of the supplied text.')
+
+    lang = language.iso_code_639_1.name.lower()
     return lang
 
 def split_sents(text, lang):
+    lang = {'nb': 'no', 'nn': 'no'}.get(lang, lang)
     if lang in LANG.SPLITTER:
         if lang == 'zh':
             sents = _split_zh(text)
