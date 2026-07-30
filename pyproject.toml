@@ -9,13 +9,14 @@ authors = [{ name = "Jason", email = "bfsujason@163.com" }]
 requires-python = ">=3.12" # for Lingua
 dependencies = [
   "numba>=0.66.0",
-  "lingua-language-detector>=2.1.1",
-  "pysbd>=0.3.4",
   "sentence-transformers>=5.6.1",
+  "wtpsplit>=2.2.1",              # mosestokenizer needs PYTHONUTF8 to build
 ]
+# default-optional-dependency-keys = ["cpu"]
+# PEP-771 is still in draft, sadly
 [project.optional-dependencies]
-cpu = ["faiss-cpu>=1.14.3"]
-gpu = ["faiss-gpu>=1.14.3"]
+cpu = ["faiss-cpu>=1.14.3", "onnxruntime>=1.28.0"]
+gpu = ["faiss-gpu>=1.14.3", "onnxruntime-gpu>=1.28.0"]
 
 [build-system]
 requires = ["setuptools>=61"]
